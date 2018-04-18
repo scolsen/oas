@@ -2,13 +2,14 @@
   "Modify OAS documents."
   (:require [oas.resolve :as res]))
 
-(defn remove-by [pred part f] 
-  "Remove the contents of an segment based on a predicate."
-  (assoc {} (key (first part)) (into {} (remove #(pred (f %)) (val (first part))))))
+(defn remove-by [pred p f] 
+  "Remove the contents of a segment based on a predicate."
+  (assoc {} (key (first p)) (into {} (remove #(pred (f %)) (val (first p))))))
 
-(defn remove-by-key [part pred] 
+(defn remove-by-key 
   "Remove the keys of an object based on a predicate over keys."
-  (remove-by pred part (comp name first)))
+  ([part pred] (remove-by pred part (comp name first)))
+  ([part pred ref-string] (remove-by pred (res/resolve-reference part ref-string) (comp name first))))
 
 (defn filter-by-key [part pred]
   "Filter the contents of an object based on a predicate over keys."

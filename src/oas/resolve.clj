@@ -9,10 +9,10 @@
 
 (defn resolve-reference [oas reference] 
   "Resolve a reference in an OAS document."
-    (loop [r (ref-to-keys reference) res oas] 
+    (loop [r (ref-to-keys reference) res oas prev (first r)] 
       (if (empty? r) 
           res 
-          (recur (rest r) {r (get res (first r))}))))
+          (recur (rest r) (get res (first r)) (first r)))))
 
 (defn resolve-references [oas references] 
   "Resolve multiple references."

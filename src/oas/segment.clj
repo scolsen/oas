@@ -12,10 +12,9 @@
 
 (defn specification [oas] 
   "Identify the version of an OAS file."
-  (let [parsed (parse-string oas true)]
-    (if (contains? parsed :swagger) 
-        {:swagger (get parsed :swagger)} 
-        {:openapi (get parsed :openapi)})))
+    (if (contains? oas :swagger) 
+        (segment oas :swagger) 
+        (segment oas :openapi)))
 
 (defn paths [oas] 
   "Get the paths object of an OAS document."
