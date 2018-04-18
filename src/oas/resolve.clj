@@ -12,6 +12,8 @@
     (loop [r (ref-to-keys reference) res oas] 
       (if (empty? r) 
           res 
-          (recur (rest r) (get res (first r))))))
+          (recur (rest r) {r (get res (first r))}))))
 
-
+(defn resolve-references [oas references] 
+  "Resolve multiple references."
+  (map #(resolve-reference oas %) references))
