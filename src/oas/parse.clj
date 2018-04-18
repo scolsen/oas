@@ -2,11 +2,11 @@
   "Parse OAS files."
   (:require [cheshire.core :refer :all]))
 
-(defn parse-oas [oas] 
+(defn parse [oas] 
   "Parse the entirety of an OAS file." 
   (parse-string oas true))
 
-(defn specification-version [oas] 
+(defn specification [oas] 
   "Identify the version of an OAS file."
   (let [parsed (parse-string oas true)]
     (if (contains? parsed :swagger) 
@@ -23,12 +23,7 @@
 
 (defn remove-by [pred part f] 
   "Remove the contents of an object based on a predicate."
-  (loop [p part] 
-    (if (empty? part) 
-        part 
-        (recur (if (pred (key (first p))) 
-                   {(key (first part)) (dissoc #(pred (f %)) (get part (key (first part))))}
-                   (rest part))))))
+  (assoc {} (key (first part)) (into {} (remove #(pred (f %)) (val (first part))))))
 
 (defn remove-by-key [part pred] 
   "Remove the keys of an object based on a predicate over keys."
