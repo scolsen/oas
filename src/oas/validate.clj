@@ -1,6 +1,7 @@
 (ns oas.validate
   "Validate the contents of an OAS document or part."
-  (:require [clojure.set :as S]))
+  (:require [clojure.set :as S][oas.specs.swagger :as swagger]
+            [oas.specs.oas :as oas][clojure.spec.alpha :as s]))
 
 ;;; specification {:info true :servers false ...}
 ;;; A map of key names and booleans. A boolean indicates whether the key is
@@ -22,7 +23,17 @@
   "Returns a boolean indicating whether all required fields are present."
   (S/subset? (set (keys (requirements spec))) (set (keys part))))
 
-(defn valid? [part spec]
+(defn valid? [part spec t]
   "Validate an OAS document part. 
    A part is valid iff the set of missing and set of unknowns are empty."
-  (and (empty? (missing-reqs part spec)) (empty? (unknowns part spec)))) 
+  (s/valid? (keyword (str "oas.specs." spec) t) part))
+
+(defn conform [part spec t]
+  "Validate an OAS document part. 
+   A part is valid iff the set of missing and set of unknowns are empty."
+  (s/conform (keyword (str "oas.specs." spec) t) part))
+
+(defn explain [part spec t]
+  "Validate an OAS document part. 
+   A part is valid iff the set of missing and set of unknowns are empty."
+  (s/explain (keyword (str "oas.specs." spec) t) part))

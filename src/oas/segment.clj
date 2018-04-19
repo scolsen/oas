@@ -4,7 +4,7 @@
 (defn segment [oas k] 
   "Get a segment of a parsed OAS document."
   (let [kw (keyword k)] 
-    {kw (get oas kw nil)}))
+    (get oas kw nil)))
 
 (defn segments [oas parts]
   "Return the specified parts of the OAS document."
