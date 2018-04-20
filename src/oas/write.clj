@@ -1,8 +1,7 @@
 (ns oas.write 
   "Write out OAS documents."
   (:require [cheshire.core :as che] [oas.parse :as parse]
-            [oas.alter :as alt]
-            [oas.segment :as seg]))
+            [oas.alter :as alt][oas.segment :as seg]))
 
 (defn write
   "Write out an encoded part or document."
