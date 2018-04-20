@@ -32,7 +32,7 @@
 (spec/def ::$ref string?) ;; must be a path item object
 (spec/def ::internalTags (spec/coll-of string?))
 (spec/def ::summary string?)
-(spec/def ::deprecated (spec/or true? false?))
+(spec/def ::deprecated (spec/or :true true? :false false?))
 (spec/def ::type string?)
 (spec/def ::format string?)
 (spec/def ::collectionFormat string?) ;; set list of values
