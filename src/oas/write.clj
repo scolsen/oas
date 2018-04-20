@@ -8,17 +8,17 @@
   ([encoded] (che/generate-string encoded))
   ([encoded file] (spit file (che/generate-string encoded))))
 
-(defn append-file [file k v target] 
+(defn append-file 
   "Append the part contents to a segment in a file."
-  ([file k v]
-   (-> file 
+  ([in out k v]
+   (-> in 
        (parse/parse)
        (alt/append-to k v)
-       (write-file file))) 
-  ([file k v target] 
-   (let [parsed (parse/parse file)]
+       (write-file out))) 
+  ([in out k v target] 
+   (let [parsed (parse/parse in)]
     (-> target 
-        (segment (parse/parse file))
+        (segment parsed)
         (alt/append-to k v)
         (->> (alt/modify parsed target))
-        (write-file file)))))
+        (write-file out)))))
