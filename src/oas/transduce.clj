@@ -2,39 +2,29 @@
   "Modify OAS documents."
   (:require [oas.resolve :as res]))
 
-(defn transduce-by [t s & fs]
+(defn transduce-by 
   "Takes a transducer and applies it to a predicate.
    First applies f to the k/v pair of x.
    Creates a structure s to hold results."
-  (fn [p x] (into s (t (apply comp p fs)) x)))
+  [transducer structure & fs]
+  (fn [pred x] (into structure (transducer (apply comp pred fs)) x)))
 
-(defn transduce-using [t-by pred]
-  "Takes a remove function and a list of things to remove. 
+(defn transduce-using 
+  "Takes a transduce-by function and a list of things to remove. 
    Removes each x in xs that match the predicate.
    Provides a defualt predicate of = for simple removal by matching.
    You can also use other predicates, such as re-matches. e.g.
    (remove-keys part [#\".*Pet\"] re-matches"
+  [t-by pred]
   (fn
-    ([part xs]
-      (loop [x xs result part] 
-            (if (empty? x) 
-                result
-                (recur (rest x) (t-by #(pred (first x) %) result))))) 
-    ([part xs predicate] 
-      (loop [x xs result part] 
-            (if (empty? x) 
-                result
-                (recur (rest x) (t-by #(predicate (first x) %) result)))))))
-
-(defn append-to [target k v] 
-  "Append a key/val to a target part. 
-   Returns nil if the part already contains the key."
-  (when ((complement contains?) target k) 
-    (assoc target k v)))
-
-(defn modify [target k v]
-  "Update a key with a value."
-  (assoc target k v))
+    ([api xs]
+     (if (empty? xs) 
+         api
+         (recur (t-by #(pred (first xs) %) api) (rest xs))))
+    ([api xs predicate] 
+     (if (empty? xs) 
+         api
+         (recur (t-by #(predicate (first x) %) api) (rest xs) predicate)))))
 
 (def remove-by (partial transduce-by remove {}))
 (def filter-by (partial transduce-by filter {}))
