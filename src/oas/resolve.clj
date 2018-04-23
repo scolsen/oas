@@ -2,6 +2,10 @@
   "Resolve references in OAS files."
   (:require [clojure.string :as s]))
 
+(defn reference? 
+  [reference-string]
+  (= (first reference-string) \#))
+
 (defn ref-to-keys [reference-string] 
   "Convert a reference string to a searchable key."
   (let [ref-path (s/split (s/replace-first reference-string #"#" "") #"/")]
@@ -14,6 +18,7 @@
           res 
           (recur (rest r) (get res (first r)) (first r)))))
 
-(defn resolve-references [oas references] 
-  "Resolve multiple references."
-  (map #(resolve-reference oas %) references))
+(defn resolve-references 
+  "Resolve references."
+  [api references] 
+  (map #(resolve-reference api %) references))
