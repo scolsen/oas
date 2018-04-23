@@ -19,30 +19,34 @@
       (loop [x xs result part] 
             (if (empty? x) 
                 result
-                (recur (rest x) (t-by result #(pred (first x) %)))))) 
+                (recur (rest x) (t-by #(pred (first x) %) result))))) 
     ([part xs predicate] 
       (loop [x xs result part] 
             (if (empty? x) 
                 result
-                (recur (rest x) (t-by result #(predicate (first x) %))))))))
+                (recur (rest x) (t-by #(predicate (first x) %) result)))))))
 
 (defn append-to [target k v] 
   "Append a key/val to a target part. 
-   Does not modify contents if the key already exists."
-  (if (contains? target k) 
-      target 
-      (assoc target k v)))
+   Returns nil if the part already contains the key."
+  (when ((complement contains?) target k) 
+    (assoc target k v)))
 
 (defn modify [target k v]
   "Update a key with a value."
   (assoc target k v))
 
-(def remove-by-key (transduce-by remove {} name first))
-(def remove-by-value (transduce-by remove {} second))
-(def remove-by-pair #((transduce-by remove {} identity) (partial = [%1 %2]) %3))
-(def filter-by-key (transduce-by filter {} name first))
-(def filter-by-value (transduce-by filter {} second))
-(def filter-by-pair #((transduce-by filter {} identity) (partial = [%1 %2]) %3))
+(def remove-by (partial transduce-by remove {}))
+(def filter-by (partial transduce-by filter {}))
+
+(def remove-by-key (remove-by first))
+(def remove-by-value (remove-by second))
+(def remove-by-pair #((remove-by identity) (partial = [%1 %2]) %3))
+
+(def filter-by-key (filter-by first))
+(def filter-by-value (filter-by second))
+(def filter-by-pair #((filter-by identity) (partial = [%1 %2]) %3))
+
 (def remove-keys (transduce-using remove-by-key =))
 (def remove-values (transduce-using remove-by-value =))
 (def filter-keys (transduce-using filter-by-key =))
