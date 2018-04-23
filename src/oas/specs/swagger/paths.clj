@@ -5,4 +5,4 @@
 
 ;; TODO: add path validation.
 
-(spec/def ::paths (spec/map-of (spec/get-spec string?) (spec/get-spec :oas.specs.swagger.path/path)))
+(spec/def ::paths (spec/map-of keyword? (spec/get-spec :oas.specs.swagger.path/path)))

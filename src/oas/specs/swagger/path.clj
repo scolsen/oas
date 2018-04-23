@@ -12,8 +12,8 @@
 (spec/def ::head (spec/get-spec :oas.specs.swagger.operation/operation))
 (spec/def ::patch (spec/get-spec :oas.specs.swagger.operation/operation))
 (spec/def ::head (spec/get-spec :oas.specs.swagger.operation/operation))
-(spec/def ::$ref string?)
 (spec/def ::parameters (spec/get-spec :oas.specs.swagger.parameters/parameters))
+(spec/def ::$ref string?)
 
 (spec/def ::path (spec/keys :req-un []
                             :opt-un [::$ref ::get ::put ::post ::delete ::options 

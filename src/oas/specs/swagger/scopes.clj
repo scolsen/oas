@@ -2,4 +2,4 @@
   "A representation of a scopes object."
   (:require [clojure.spec.alpha :as spec]))
 
-(spec/def ::scopes (spec/map-of string? string?))
+(spec/def ::scopes (spec/map-of keyword? string?))
