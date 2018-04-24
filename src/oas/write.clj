@@ -1,7 +1,8 @@
 (ns oas.write 
   "Write out OAS documents."
-  (:require [cheshire.core :as che] [oas.parse :as parse]
-            [oas.alter :as alt][oas.segment :as seg]))
+  (:require [cheshire.core :as che] [oas.parse :as p]
+            [oas.update :as u][oas.segment :as s]
+            [oas.resolve :as r]))
 
 (defn write
   "Write out an encoded part or document."
@@ -15,13 +16,14 @@
    writes the result out to the out file."
   ([in out k v]
    (-> in 
-       (parse/parse-file)
-       (alt/append-to k v)
+       (p/parse-file)
+       (u/append-to k v)
        (write out))) 
   ([in out k v target] 
-   (let [parsed (parse/parse-file in)]
-    (-> target 
-        (seg/segment parsed)
-        (alt/append-to k v)
-        (->> (alt/modify parsed target))
-        (write out)))))
+   (let [parsed (p/parse-file in)]
+        (-> target 
+            (cond-> (r/reference? target) (->> (r/resolve-reference parsed))
+                    ((complement r/reference?) target) (s/segment parsed))
+            (u/append-to k v)
+            (->> (u/modify parsed target))
+            (write out)))))
