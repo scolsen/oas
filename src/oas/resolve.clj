@@ -13,10 +13,19 @@
 
 (defn resolve-reference [oas reference] 
   "Resolve a reference in an OAS document."
-    (loop [r (ref-to-keys reference) res oas prev (first r)] 
+    (loop [r (if (string? reference) (ref-to-keys reference) reference) res oas] 
       (if (empty? r) 
           res 
-          (recur (rest r) (get res (first r)) (first r)))))
+          (recur (rest r) (get res (first r))))))
+
+(defn resolve-list [oas reference]
+  (if (empty? reference)
+      oas
+      (recur (get oas (first reference)) (rest reference))))
+
+(defn resolve-root 
+  [oas reference]
+  (get oas (first (ref-to-keys reference))))
 
 (defn resolve-references 
   "Resolve references."
