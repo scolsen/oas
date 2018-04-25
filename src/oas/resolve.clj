@@ -34,10 +34,6 @@
             (recur (butlast r)
               (assoc (resolve-list oas (butlast r)) (last r) result)))))
 
-(defn resolve-root 
-  [oas reference]
-  (get oas (first (ref-to-keys reference))))
-
 (defn resolve-references 
   "Resolve references."
   [api references] 
