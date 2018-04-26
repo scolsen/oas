@@ -1,7 +1,7 @@
 (ns oas.validate
   "Validate the contents of an OAS document or part."
-  (:require [clojure.set :as S][oas.specs.swagger.root]
-            [oas.specs.oas :as oas][clojure.spec.alpha :as s]))
+  (:require [oas.specs.swagger.root][oas.specs.oas.root]
+            [clojure.spec.alpha :as s]))
 
 (defn- examine-spec [f]
   (fn 

@@ -1,10 +1,12 @@
 (ns oas.specs.oas.operation
-  (:require [clojure.spec.alpha :as spec] [oas.specs.oas.responses]
+  (:require [clojure.spec.alpha :as spec] [oas.predicates :as p]
+            [oas.specs.oas.responses]
             [oas.specs.oas.externalDocs] [oas.specs.oas.parameter]
             [oas.specs.oas.reference] [oas.specs.oas.requestBody]
-            [oas.specs.oas.callback] [oas.specs.oas.securityRequirement]
+            [oas.specs.oas.securityRequirement]
             [oas.specs.oas.server]))
 
+(spec/def ::callback string?) ;; fix me. Callback is a cyclic reference.
 (spec/def ::responses (spec/get-spec :oas.specs.oas.responses/responses))
 (spec/def ::tags (spec/coll-of string?))
 (spec/def ::summary string?)
@@ -18,7 +20,7 @@
   (spec/or :requestBody (spec/get-spec :oas.specs.oas.requestBody/requestBody) 
            :reference (spec/get-spec :oas.specs.oas.reference/reference)))
 (spec/def ::callbacks (spec/map-of keyword? 
-  (spec/or :callback (spec/get-spec :oas.specs.oas.callback/callback) 
+  (spec/or :callback ::callback 
            :reference (spec/get-spec :oas.specs.oas.reference/reference))))
 (spec/def ::deprecated (spec/or :true true? :false false?))
 (spec/def ::security (spec/coll-of 

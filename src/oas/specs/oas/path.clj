@@ -1,5 +1,5 @@
 (ns oas.specs.oas.path 
-  (:require [clojure.spec.alpha :as spec] [oas.predciates :as p]
+  (:require [clojure.spec.alpha :as spec] [oas.predicates :as p]
             [oas.specs.oas.parameter] [oas.specs.oas.reference]
             [oas.specs.oas.server] [oas.specs.oas.operation]))
 

@@ -29,4 +29,4 @@
 (spec/def ::parameter (spec/merge ::serialization 
   (spec/keys :req-un [::name ::in ::required]
              :opt-un [::description ::deprecated ::allowEmptyValue
-                      ::content]))
+                      ::content])))
