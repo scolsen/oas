@@ -30,10 +30,8 @@
   ([oas oas*]
    (merge oas oas*))
   ([oas oas* path path*]
-   (let [k (last (r/resolve-reference oas path))
-         r (str )] 
-        (modify oas 
-                k
+   (let [k (last (r/resolve-reference oas path))] 
+        (modify oas k
                 (merge (r/resolve-reference oas path) 
-                  (r/resolve-reference oas* path*))
-                (r/reconstruct path drop-last)))))
+                       (r/resolve-reference oas* path*))
+             (r/reconstruct path drop-last)))))

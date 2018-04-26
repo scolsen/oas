@@ -8,7 +8,8 @@
 
 (defn ref-to-keys [reference-string] 
   "Convert a reference string to a searchable key."
-  (let [ref-path (s/split (s/replace-first reference-string #"#" "") #"/")]
+  (let [ref-path (remove #(= "" %) ;; we need to remove empty strings to prevent keywording "", which returns :
+                   (s/split (s/replace-first reference-string #"#" "") #"/"))]
   (map #(if (re-matches #"\d" %) (Integer. %) (keyword %)) ref-path)))
 
 (defn reconstruct 
@@ -18,6 +19,7 @@
   [reference-string f]
   (->> (f (ref-to-keys reference-string))
        (interpose \/)
+       (map name)
        (s/join)
        (str "#")))
 

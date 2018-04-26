@@ -19,13 +19,10 @@
        (p/parse-file)
        (u/append-to k v)
        (write out))) 
-  ([in out k v target] 
+  ([in out k v reference] 
    (let [parsed (p/parse-file in)]
-        (-> target 
-            (cond-> (r/reference? target) (->> (r/resolve-reference parsed))
-                    ((complement r/reference?) target) (s/segment parsed))
-            (u/append-to k v)
-            (->> (u/modify parsed target))
+        (-> reference 
+            (->> (u/modify parsed k v))
             (write out)))))
 
 ;; add compatibility checking. i.e. 2.0 cannot be merged to 3.0.
@@ -35,6 +32,6 @@
   [in in* out]
   (let [oas (p/parse-file in) oas* (p/parse-file in*)]
        (-> oas
-           (merge-oas oas*)
+           (u/merge-oas oas*)
            (write out))))
 
