@@ -11,6 +11,16 @@
   (let [ref-path (s/split (s/replace-first reference-string #"#" "") #"/")]
   (map #(if (re-matches #"\d" %) (Integer. %) (keyword %)) ref-path)))
 
+(defn reconstruct 
+  "Takes a references string and some function f. 
+   Uses function f to modify the list of refernce string keys.
+   Then reconstructs a reference string out of the result."
+  [reference-string f]
+  (->> (f (ref-to-keys reference-string))
+       (interpose \/)
+       (s/join)
+       (str "#")))
+
 (defn resolve-reference [oas reference] 
   "Resolve a reference in an OAS document."
     (loop [r (if (string? reference) (ref-to-keys reference) reference) res oas] 

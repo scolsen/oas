@@ -24,3 +24,16 @@
   (if (empty? references)
       oas
       (recur (modify oas k v (first references)) k v (rest references))))
+
+(defn merge-oas 
+  "Merge oas objects."
+  ([oas oas*]
+   (merge oas oas*))
+  ([oas oas* path path*]
+   (let [k (last (r/resolve-reference oas path))
+         r (str )] 
+        (modify oas 
+                k
+                (merge (r/resolve-reference oas path) 
+                  (r/resolve-reference oas* path*))
+                (r/reconstruct path drop-last)))))

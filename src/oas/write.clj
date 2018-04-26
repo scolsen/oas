@@ -27,3 +27,14 @@
             (u/append-to k v)
             (->> (u/modify parsed target))
             (write out)))))
+
+;; add compatibility checking. i.e. 2.0 cannot be merged to 3.0.
+;; later add support for merging 2.0 and 3.0 
+(defn merge-files
+  "Merge the contents of one oas file with another."
+  [in in* out]
+  (let [oas (p/parse-file in) oas* (p/parse-file in*)]
+       (-> oas
+           (merge-oas oas*)
+           (write out))))
+
