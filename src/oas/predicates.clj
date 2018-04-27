@@ -13,12 +13,11 @@
   (re-matches #"\d\.\d\.\d" x))
 
 (defn http-code? [x]
-  (some #(= true %) (for [x d/codes y [x]] (= x y))))
-
-;; TODO: Implement runtime expressions.
-
-(defn expression? [x]
-  true)
+  (some #(= x %) d/codes))
 
 (defn ref? [x]
   (= :$ref x))
+
+(defn expression? [x] ;; TODO: Implement runtime expressions.
+  true)
+

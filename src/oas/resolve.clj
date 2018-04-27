@@ -1,52 +1,78 @@
 (ns oas.resolve
   "Resolve references in OAS files."
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [clojure.algo.generic.functor :only (fmap)]))
 
 (defn reference? 
   [reference-string]
   (= (first reference-string) \#))
 
-(defn ref-to-keys [reference-string] 
-  "Convert a reference string to a searchable key."
-  (let [ref-path (remove #(= "" %) ;; we need to remove empty strings to prevent keywording "", which returns :
-                   (s/split (s/replace-first reference-string #"#" "") #"/"))]
-  (map #(if (re-matches #"\d" %) (Integer. %) (keyword %)) ref-path)))
+(defn root?
+  [reference-string]
+  (= "#" reference-string))
 
-(defn reconstruct 
-  "Takes a references string and some function f. 
-   Uses function f to modify the list of refernce string keys.
-   Then reconstructs a reference string out of the result."
-  [reference-string f]
-  (->> (f (ref-to-keys reference-string))
+(defn- int-or-key [x]
+  (if (re-matches #"\d" x) 
+      (Integer. x) 
+      (keyword x)))
+
+(defn reference-list 
+  "Convert a reference string to a searchable sequence of keys.
+   Integers are converted to integer values for accessing arrays."
+  [reference-string] 
+  (-> reference-string 
+      (when-not "") ;;this line guards against nil values.
+      (s/replace-first #"#" "")
+      (s/split #"/")
+      (->> (remove #(= "" %))
+           (map int-or-key))))
+
+(defn to-reference
+  "Takes a reference list and returns a reference string."
+  [reference-list]
+  (->> reference-list
        (interpose \/)
        (map name)
        (s/join)
        (str "#")))
 
-(defn resolve-reference [oas reference] 
-  "Resolve a reference in an OAS document."
-    (loop [r (if (string? reference) (ref-to-keys reference) reference) res oas] 
-      (if (empty? r) 
-          res 
-          (recur (rest r) (get res (first r))))))
+(defn revise-reference 
+  "Takes a references string and some function f. 
+   Uses function f to modify the list of refernce string keys.
+   Then reconstructs a reference string out of the result."
+  [reference-string f]
+  (->> reference-string
+       (comp f ref-to-keys)
+       (to-reference)))
 
-(defn resolve-list [oas reference]
-  (if (empty? reference)
-      oas
-      (recur (get oas (first reference)) (rest reference))))
+(defn last-of 
+  "Returns the last segment of a reference string."
+  [reference-string]
+  (-> reference-string 
+      (ref-to-keys)
+      (last)))
 
-(defn resolve-map 
-  "Resolve references, then iterate f over point in the reference path.
-   Returns the result. Takes an f to run on each value, and a g to set the previously processed value."
-  [f oas reference]
-  (loop [r (ref-to-keys reference) 
-         result (into {} (map #(vector (first %) (f (second %)))) (resolve-list oas r))]
-        (if (empty? r)
-            result
-            (recur (butlast r)
-              (assoc (resolve-list oas (butlast r)) (last r) result)))))
+(defn first-of 
+  [reference-string]
+  (-> reference-string
+      (ref-to-keys)
+      (first)))
+
+(defn resolve-reference 
+    "Resolve a reference in an OAS document."
+    [oas reference-string] 
+    (->> reference-string
+         (ref-to-keys)
+         (resolve-list oas))) 
 
 (defn resolve-references 
   "Resolve references."
-  [api references] 
-  (map #(resolve-reference api %) references))
+  [oas references] 
+  (map #(resolve-reference oas %) references))
+
+(defn resolve-list 
+  "Resolve a list of references."
+  [oas reference-list]
+  (if (empty? reference-list)
+      oas
+      (recur (get oas (first reference-list)) (rest reference-list))))
