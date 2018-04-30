@@ -1,22 +1,23 @@
 (ns oas.update
   "Reducing functions."
-  (:require [oas.resolve :as r]))
+  (:require [oas.resolve :as r]
+            [oas.json-pointer :as j]))
 
 (defn append-to 
-  [oas k v] 
-  (when ((complement contains?) oas k)
-    (assoc oas k v))) 
+  [json k v] 
+  (when ((complement contains?) json k)
+    (assoc json k v))) 
 
-(defn modify 
+(defn modify-json 
   "Update a key with a value in place."
-  ([oas k v] (assoc oas k v))
-  ([oas k v reference]
-   (loop [r (r/ref-to-keys reference) k* k v* v]
+  ([json k v] (assoc json k v))
+  ([json k v pointer]
+   (loop [p (j/parse-pointer pointer) k* k v* v]
          (if (empty? r) 
-             (assoc oas k* v*)
-             (recur (butlast r) 
-                    (last r) 
-                    (assoc (r/resolve-list oas r) k* v*))))))
+             (assoc json k* v*)
+             (recur (butlast p) 
+                    (last p) 
+                    (assoc (r/resolve-json json p) k* v*))))))
 
 (defn modify-each 
   "Modify multiple objects in place."
@@ -25,13 +26,13 @@
       oas
       (recur (modify oas k v (first references)) k v (rest references))))
 
-(defn merge-oas 
+(defn merge-json 
   "Merge oas objects."
-  ([oas oas*]
-   (merge oas oas*))
-  ([oas oas* path path*]
-   (let [k (last (r/resolve-reference oas path))] 
-        (modify oas k
-                (merge (r/resolve-reference oas path) 
-                       (r/resolve-reference oas* path*))
-             (r/reconstruct path drop-last)))))
+  ([json json*]
+   (merge json json*))
+  ([json json* pointer pointer*]
+   (let [k (last (j/parse-pointer pointer))] 
+        (modify json k
+                (merge (r/resolve-json json pointer) 
+                       (r/resolve-json json* pointer*))
+             (j/keys->pointer pointer drop-last)))))
