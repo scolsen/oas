@@ -29,7 +29,7 @@
              :else r)))
 
 (defn token-list->key-or-int
-  ""
+  "Convert a list of tokens to a list of keys or ints."
   [token-list]
   (if (some integer? token-list)
       token-list
@@ -62,7 +62,7 @@
        (str "#")))
 
 (defn parse-pointer
-  ""
+  "Parse a JSON pointer value into a list of keys."
   [json-pointer]
   (let [jp (json-pointer-parser json-pointer)] 
   (if (json-pointer? jp) 
