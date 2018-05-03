@@ -1,19 +1,30 @@
 (ns oas.validate
   "Validate the contents of an OAS document or part."
   (:require [oas.specs.swagger.root][oas.specs.oas.root]
-            [clojure.spec.alpha :as s]))
+            [clojure.spec.alpha :as spec] [clojure.string :as s]))
 
-(defn- examine-spec [f]
-  (fn 
-    ([api spec] 
-     (f (keyword (str "oas.specs." spec ".root") "root") api))
-    ([api spec object] 
-     (f (keyword (str "oas.specs." spec ".root") object) api))))
+(defn list-specs [term]
+  "List the keys in the spec registry that include some word."
+  (let [pred #(and (s/includes? (namespace %) term) (keyword? %))]
+  (->> (spec/registry)
+       (filter pred))))
 
-(defmacro constrain [spec object predicate] 
-  (let [k (keyword (str "oas.specs." spec) object)]
-       `(s/def ~k (s/and (s/get-spec ~k) ~predicate))))
+(defn mark 
+  "Mark the places in which a non-conformant json object fails to conform."
+  ([sp json]
+   (-> (spec/explain-data sp json)
+       (get :clojure.spec.alpha/problems)
+       (->> (map #(get % :path)))))
+  ([sp json tag]))
 
-(def valid? (examine-spec s/valid?))
-(def conform (examine-spec s/conform))
-(def explain (examine-spec s/explain))
+(defmacro constrain [sp object predicate] 
+  "Update a spec with custom constraints."
+  (let [k (keyword (str "oas.specs." sp) object)]
+       `(spec/def ~k (spec/and (spec/get-spec ~k) ~predicate))))
+
+(def swagger-specs (list-specs "swagger"))
+(def oas-specs (list-specs "oas"))
+
+(def valid? spec/valid?)
+(def conform spec/conform)
+(def explain spec/explain-data)
