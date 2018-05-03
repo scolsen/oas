@@ -6,8 +6,8 @@
   "Takes a transducer and applies it to a predicate.
    First applies f to the k/v pair of x.
    Creates a structure s to hold results."
-  [transducer structure & fs]
-  (fn [pred x] (into structure (transducer (apply comp pred fs)) x)))
+  [transducer structure & f]
+  (fn [pred x] (into structure (transducer (comp pred f)) x)))
 
 (defn transduce-using 
   "Takes a transduce-by function and a list of things to remove. 
@@ -18,12 +18,10 @@
   [t-by pred]
   (fn
     ([api xs]
-     (if (empty? xs) 
-         api
+     (if (empty? xs) api
          (recur (t-by #(pred (first xs) %) api) (rest xs))))
     ([api xs predicate] 
-     (if (empty? xs) 
-         api
+     (if (empty? xs) api
          (recur (t-by #(predicate (first x) %) api) (rest xs) predicate)))))
 
 (def remove-by (partial transduce-by remove {}))
