@@ -2,21 +2,14 @@
   "Resolve references in OAS files."
   (:require [oas.json-pointer :as jp]))
 
-(defn resolve-pointer 
-  ""
+(defn pointer->value 
+  "Take a pointer and return the value mapped to it in the provided json."
   [json pointer]
   (->> pointer
        (jp/parse-pointer)
-       (jp/resolve-pointer-list json)))
+       (get-in json)))
 
-(defn resolve-pointer-list 
-  "Resolve a json pointer key-list."
-  [json key-list]
-  (if (empty? key-list)
-      json
-      (recur (get json (first key-list)) (rest key-list))))
-
-(defn resolve-pointers 
+(defn pointers->values 
   "Resolve multiple json pointers."
-  [json pointer-lists] 
-  (map #(resolve-json json %) pointer-lists))
+  [json pointers] 
+  (map #(pointer->value json %) pointers))
