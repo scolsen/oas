@@ -8,31 +8,22 @@
   (when ((complement contains?) json k)
     (assoc json k v))) 
 
-(defn modify-json 
+(defn update-value 
   "Update a key with a value in place."
-  ([json k v] (assoc json k v))
-  ([json k v pointer]
-   (loop [p (j/parse-pointer pointer) k* k v* v]
-         (if (empty? r) 
-             (assoc json k* v*)
-             (recur (butlast p) 
-                    (last p) 
-                    (assoc (r/resolve-json json p) k* v*))))))
+  [json pointer v]
+  (assoc-in json (j/parse-pointer pointer) v))
 
-(defn modify-each 
+(defn update-each 
   "Modify multiple objects in place."
-  [oas k v references] 
-  (if (empty? references)
+  [oas pointers v] 
+  (if (empty? pointers)
       oas
-      (recur (modify oas k v (first references)) k v (rest references))))
+      (recur (modify oas (first pointers) v) (rest pointers) v)))
 
 (defn merge-json 
   "Merge oas objects."
   ([json json*]
    (merge json json*))
   ([json json* pointer pointer*]
-   (let [k (last (j/parse-pointer pointer))] 
-        (modify json k
-                (merge (r/resolve-json json pointer) 
-                       (r/resolve-json json* pointer*))
-             (j/keys->pointer pointer drop-last)))))
+   (modify json pointer
+     (merge (r/pointer->value json pointer) (r/pointer->value json* pointer*)))))
