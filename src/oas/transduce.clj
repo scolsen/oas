@@ -1,12 +1,20 @@
 (ns oas.transduce
-  "Modify OAS documents.")
+  "Modify OAS documents."
+  (:require [oas.update :as up]
+            [json-pointer.core :as jp]))
 
 (defn transduce-by 
   "Takes a transducer and applies it to a predicate.
    First applies f to the k/v pair of x.
    Creates a structure s to hold results."
-  [transducer structure & f]
-  (fn [pred x] (into structure (transducer (apply comp pred f)) x)))
+  [xf coll & fs]
+  (fn ([pred json] 
+       (into coll (xf (apply comp pred fs)) json))
+      ([pred json pointer] 
+       (as-> json j
+           (jp/resolve-pointer j pointer)
+           (into coll (xf (apply comp pred fs)) j)
+           (up/update-value json pointer j)))))
 
 (defn transduce-using 
   "Takes a transduce-by function and a list of things to remove. 
