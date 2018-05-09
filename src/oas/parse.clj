@@ -9,8 +9,8 @@
 
 (defn parse [oas] 
   "Parse the entirety of an OAS string." 
-  (che/parse-string oas true))
+  (che/parse-string oas))
 
 (defn parse-file [file]
   "Parse the entirety of an OAS file."
-  (che/parse-string (slurp file) kstring->key))
+  (che/parse-string (slurp file)))

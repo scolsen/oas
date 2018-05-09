@@ -1,7 +1,6 @@
 (ns oas.update
   "Reducing functions."
-  (:require [oas.resolve :as r]
-            [oas.json-pointer :as j]))
+  (:require [json-pointer.core :as jp]))
 
 (defn append-to 
   [json k v] 
@@ -11,19 +10,19 @@
 (defn update-value 
   "Update a key with a value in place."
   [json pointer v]
-  (assoc-in json (j/parse-pointer pointer) v))
+  (assoc-in json (jp/pointer->strings pointer) v))
 
 (defn update-each 
   "Modify multiple objects in place."
   [oas pointers v] 
   (if (empty? pointers)
       oas
-      (recur (modify oas (first pointers) v) (rest pointers) v)))
+      (recur (update-value oas (first pointers) v) (rest pointers) v)))
 
 (defn merge-json 
   "Merge oas objects."
   ([json json*]
    (merge json json*))
   ([json json* pointer pointer*]
-   (modify json pointer
-     (merge (r/pointer->value json pointer) (r/pointer->value json* pointer*)))))
+   (update-value json pointer
+     (merge (jp/resolve-pointer json pointer) (jp/resolve-pointer json* pointer*)))))
