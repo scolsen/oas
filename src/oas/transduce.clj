@@ -1,13 +1,12 @@
 (ns oas.transduce
-  "Modify OAS documents."
-  (:require [oas.resolve :as res]))
+  "Modify OAS documents.")
 
 (defn transduce-by 
   "Takes a transducer and applies it to a predicate.
    First applies f to the k/v pair of x.
    Creates a structure s to hold results."
   [transducer structure & f]
-  (fn [pred x] (into structure (transducer (comp pred f)) x)))
+  (fn [pred x] (into structure (transducer (apply comp pred f)) x)))
 
 (defn transduce-using 
   "Takes a transduce-by function and a list of things to remove. 
@@ -22,7 +21,7 @@
          (recur (t-by #(pred (first xs) %) api) (rest xs))))
     ([api xs predicate] 
      (if (empty? xs) api
-         (recur (t-by #(predicate (first x) %) api) (rest xs) predicate)))))
+         (recur (t-by #(predicate (first xs) %) api) (rest xs) predicate)))))
 
 (def remove-by (partial transduce-by remove {}))
 (def filter-by (partial transduce-by filter {}))
